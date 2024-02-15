@@ -85,8 +85,28 @@ func main() {
 
 func insertClient(db *sql.DB, client Client) (int64, error) {
 	// напишите здесь код для добавления новой записи в таблицу clients
+	db, err := sql.Open("sqlite", "demo.db")
+	if err != nil {
+		fmt.Printf("insertClient sql.Open error %v \n", err)
+		return 0, err
+	}
+	defer db.Close()
 
-	return 0, nil // вместо 0 верните идентификатор добавленной записи
+	res, err := db.Exec("INSERT INTO clients (fio, login, birthday, email) VALUES (:fio, :login, :birthday, :email)",
+		sql.Named("fio", client.FIO),
+		sql.Named("login", client.Login),
+		sql.Named("birthday", client.Birthday),
+		sql.Named("email", client.Email))
+	if err != nil {
+		fmt.Printf("insertClient db.Exec error %v \n", err)
+		return 0, err
+	}
+	lastId := res.LastInsertId()
+	if err != nil {
+		fmt.Printf("LastId ")
+	}
+	fmt.Println(res.LastInsertId())
+	return lastId, nil // вместо 0 верните идентификатор добавленной записи
 }
 
 func updateClientLogin(db *sql.DB, login string, id int64) error {
