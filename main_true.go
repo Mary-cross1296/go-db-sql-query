@@ -32,10 +32,10 @@ func main() {
 
 	// добавление нового клиента
 	newClient := Client{
-		FIO:      "Коваль Елена Евгеньевна",   // укажите ФИО
-		Login:    "lenakoval",                 // укажите логин
-		Birthday: "19890301",                  // укажите день рождения
-		Email:    "koval_elena89@example.com", // укажите почту
+		FIO:      "Евтушенко Григорий Викторович",
+		Login:    "evtushenko86",
+		Birthday: "19860327",
+		Email:    "evtushenko86@gmail.com",
 	}
 
 	id, err := insertClient(db, newClient)
@@ -53,7 +53,7 @@ func main() {
 	fmt.Println(client)
 
 	// обновление логина клиента
-	newLogin := "new_login_user" // укажите новый логин
+	newLogin := "evtushenko8603"
 	err = updateClientLogin(db, newLogin, id)
 	if err != nil {
 		fmt.Println(err)
@@ -84,48 +84,33 @@ func main() {
 }
 
 func insertClient(db *sql.DB, client Client) (int64, error) {
-	// напишите здесь код для добавления новой записи в таблицу clients
-	// Создаем и выполняем запрос на вставку
 	res, err := db.Exec("INSERT INTO clients (fio, login, birthday, email) VALUES (:fio, :login, :birthday, :email)",
 		sql.Named("fio", client.FIO),
 		sql.Named("login", client.Login),
 		sql.Named("birthday", client.Birthday),
 		sql.Named("email", client.Email))
 	if err != nil {
-		fmt.Printf("insertClient db.Exec error %v \n", err)
 		return 0, err
 	}
-	// Получаем последний добавленный идентификатор
-	lastId, err := res.LastInsertId()
+
+	id, err := res.LastInsertId()
 	if err != nil {
-		fmt.Printf("res.LastInsertetId error %v \n", err)
 		return 0, err
 	}
-	return lastId, nil // вместо 0 верните идентификатор добавленной записи
+
+	return id, nil
 }
 
 func updateClientLogin(db *sql.DB, login string, id int64) error {
-	// напишите здесь код для обновления поля login в таблице clients у записи с заданным id
-	// Создаем и выполняем запрос на обновление данных
 	_, err := db.Exec("UPDATE clients SET login = :login WHERE id = :id",
 		sql.Named("login", login),
 		sql.Named("id", id))
-	if err != nil {
-		fmt.Printf("updateClientLogin db.Exec error %v \n", err)
-		return err
-	}
-	return nil
+	return err
 }
 
 func deleteClient(db *sql.DB, id int64) error {
-	// напишите здесь код для удаления записи из таблицы clients по заданному id
-	_, err := db.Exec("DELETE FROM clients WHERE id = :id",
-		sql.Named("id", id))
-	if err != nil {
-		fmt.Printf("deleteClient db.Exec error %v \n", err)
-		return err
-	}
-	return nil
+	_, err := db.Exec("DELETE FROM clients WHERE id = :id", sql.Named("id", id))
+	return err
 }
 
 func selectClient(db *sql.DB, id int64) (Client, error) {
